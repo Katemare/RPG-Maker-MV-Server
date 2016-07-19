@@ -1,5 +1,5 @@
 /*:
- * @plugindesc Set switches as important, check dependencies
+ * @plugindesc Set game datas as important, check dependencies
  * @author DeadElf79
  *
  * @param Default importance of switches
@@ -125,11 +125,11 @@ SwitchAnalyzer.load = function(){
 	this._loadDependencies();
 };
 
-SwitchAnalyzer.isMapAvailable = function( var mapId ){
+SwitchAnalyzer.isMapAvailable = function( mapId ){
 	if ( this.hasMapTriggers( mapId ) ){
 		var triggers = this._mapTriggers( mapId );
 		for( var index = 0 ; index < triggers.length; index++ ){
-			if ($gameSwitches.value(triggers[index])==false){
+			if ( $gameSwitches.value( triggers[ index ] ) == false ){
 				return false;
 			}
 		}
@@ -137,7 +137,7 @@ SwitchAnalyzer.isMapAvailable = function( var mapId ){
 	return true;
 };
 
-SwitchAnalyzer.hasMapTriggers = function( var mapId ){
+SwitchAnalyzer.hasMapTriggers = function( mapId ){
 	return this.mapTriggers.length>0;
 }
 
@@ -159,7 +159,7 @@ SwitchAnalyzer._loadDependencies = function(){
 	// TODO: add this using graphs and nodes
 };
 
-SwitchAnalyzer._mapTriggers = function( var mapId ){
+SwitchAnalyzer._mapTriggers = function( mapId ){
 	return SwitchAnalyzer._maps[ mapId ];
 };
 
@@ -295,19 +295,98 @@ Scene_SwitchAnalyzer.prototype.constructor = Scene_SwitchAnalyzer;
 
 Scene_SwitchAnalyzer.prototype.initialize = function() {
     Scene_MenuBase.prototype.initialize.call(this);
-	this.createUI();
 };
 
-Scene_SwitchAnalyzer.createUI = function(){
+Scene_SwitchAnalyzer.prototype.create = function() {
+    Scene_MenuBase.prototype.create.call(this);
+    this.createUI();
+}
+
+Scene_SwitchAnalyzer.prototype.createUI = function(){
 	this.setBackgroundOpacity(100);
 	
-	
-	// TODO: do something here
+	// ui based on deadelf79's design [http://jsbin.com/kayuti/edit?html,js,output]
 	this.content = document.createElement('div');
 	this.content.style.cssText = [
-			'position:absolute',
-			''
+		'width:640px',
+		'margin:0 auto'
+	].join("; ");
+	this.div_navigator = document.createElement('div');
+	this.div_navigator.style.cssText = [
+		'width:618px',
+		'border:3px solid #666',
+		'background-color: #fff',
+		'padding:8px'
+	].join("; ");
+	this.div_table = document.createElement('table');
+	this.div_table.style.cssText = [
+		'width:640px',
+		'border:3px solid #666',
+		'background-color: #fff',
+		'padding:8px'
+	].join("; ");
+
+	this.tabs = [];
+	var names = [
+		'Switches',
+		'Variables',
+		'MapTriggers',
+		'Members',
+		'Items',
+		'Regions',
+		'EventPages'
+	];
+	var funcs = [
+		this._clickSwitches,
+		this._clickVariables,
+		this._clickMapTriggers,
+		this._clickMembers,
+		this._clickItems,
+		this._clickRegions,
+		this._clickEventPages
+	];
+	for(var index=0; index < names.length; index++){
+		this.tabs[index] = document.createElement('input');
+		this.tabs[index].type = 'button';
+		this.tabs[index].value = names[index];
+		this.tabs[index].style.cssText = [
+			'margin-right:4px',
+			'cursor: pointer','cursor: hand',// browsers use different names
+			'border:1px solid #666'
 		].join("; ");
+		this.tabs[index].addEventListener("click", funcs[index], false);
+		this.div_navigator.appendChild( this.tabs[index] );
+	}
+
+	this.content.appendChild( this.div_navigator );
+	this.content.appendChild( this.div_table );
 	document.body.appendChild( this.content );
-	
+};
+
+Scene_SwitchAnalyzer.prototype._clickSwitches = function(){
+	alert("yes");
+};
+
+Scene_SwitchAnalyzer.prototype._clickVariables = function(){
+  
+};
+
+Scene_SwitchAnalyzer.prototype._clickMapTriggers = function(){
+  
+};
+
+Scene_SwitchAnalyzer.prototype._clickMembers = function(){
+  
+};
+
+Scene_SwitchAnalyzer.prototype._clickItems = function(){
+  
+};
+
+Scene_SwitchAnalyzer.prototype._clickRegions = function(){
+  
+};
+
+Scene_SwitchAnalyzer.prototype._clickEventPages = function(){
+  
 };
