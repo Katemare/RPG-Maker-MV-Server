@@ -123,7 +123,15 @@ SwitchAnalyzer._events		= {}; // ...for future features like event pages or bran
 SwitchAnalyzer.load = function(){
 	this._loadImportants();
 	this._loadDependencies();
+	this._loaded = true;
 };
+
+SwitchAnalyzer.loaded = function(){
+	if (this._loaded == undefined){
+		return false
+	}
+	return this._loaded;
+}
 
 SwitchAnalyzer.isMapAvailable = function( mapId ){
 	if ( this.hasMapTriggers( mapId ) ){
@@ -190,14 +198,14 @@ SwitchAnalyzer._loadSwitchesAndVariables = function(){
 		}
 		if ( this.defaultImportanceOfSwitches > 0 ){
 			if ( $dataSystem.switches[ index ].test( importantRegEx ) ){
-				if ( this._switches.indexOf( $dataSystem.switches[ index ] ) > -1 ){
-					this._switches.push( $dataSystem.switches[ index ] );
+				if ( this._switches.indexOf( index ) > -1 ){
+					this._switches.push( index );
 				}
 			}
 		} else {
 			if ( !$dataSystem.switches[ index ].test( importantRegEx ) ){
-				if ( this._switches.indexOf( $dataSystem.switches[ index ] ) > -1 ){
-					this._switches.push( $dataSystem.switches[ index ] );
+				if ( this._switches.indexOf( index ) > -1 ){
+					this._switches.push( index );
 				}
 			}
 		};
@@ -220,14 +228,14 @@ SwitchAnalyzer._loadSwitchesAndVariables = function(){
 		}
 		if ( this.defaultImportanceOfSwitches > 0 ){
 			if ( $dataSystem.switches[ index ].test( importantRegEx ) ){
-				if ( this._switches.indexOf( $dataSystem.switches[ index ] ) > -1 ){
-					this._switches.push( $dataSystem.switches[ index ] );
+				if ( this._switches.indexOf( index ) > -1 ){
+					this._switches.push( index );
 				}
 			}
 		} else {
 			if ( !$dataSystem.switches[ index ].test( importantRegEx ) ){
-				if ( this._switches.indexOf( $dataSystem.switches[ index ] ) > -1 ){
-					this._switches.push( $dataSystem.switches[ index ] );
+				if ( this._switches.indexOf( index ) > -1 ){
+					this._switches.push( index );
 				}
 			}
 		};
@@ -299,6 +307,9 @@ Scene_SwitchAnalyzer.prototype.initialize = function() {
 
 Scene_SwitchAnalyzer.prototype.create = function() {
     Scene_MenuBase.prototype.create.call(this);
+    if ( !SwitchAnalyzer.loaded ){
+    	SwitchAnalyzer.load();
+    }
     this.createUI();
 }
 
@@ -309,25 +320,46 @@ Scene_SwitchAnalyzer.prototype.createUI = function(){
 	this.content = document.createElement('div');
 	this.content.style.cssText = [
 		'width:640px',
-		'margin:0 auto'
+		'margin:0 auto',
+		'background-color:#fff',
+		'display:block',
+		'z-index:999',
+		'position:relative'
 	].join("; ");
 	this.div_navigator = document.createElement('div');
 	this.div_navigator.style.cssText = [
 		'width:618px',
 		'border:3px solid #666',
+		'border-bottom:1px dashed #666',
 		'background-color: #fff',
-		'padding:8px'
+		'padding:8px',
+		'padding-bottom:0px'
 	].join("; ");
-	this.div_table = document.createElement('table');
+	this.div_table = document.createElement('div');
 	this.div_table.style.cssText = [
-		'width:640px',
+		'width:618px',
+		'min-height:400px',
 		'border:3px solid #666',
+		'border-top:none',
+		'border-bottom:none',
 		'background-color: #fff',
-		'padding:8px'
+		'padding:8px',
+		'overflow-y:scroll'
+	].join("; ");
+	this.div_system = document.createElement('div');
+	this.div_system.style.cssText = [
+		'width:618px',
+		'border:3px solid #666',
+		'border-top:1px dashed #666',
+		'background-color: #fff',
+		'padding:8px',
+		'padding-top:0'
 	].join("; ");
 
+	// database tab buttons
+	var index;
 	this.tabs = [];
-	var names = [
+	var tab_names = [
 		'Switches',
 		'Variables',
 		'MapTriggers',
@@ -336,7 +368,7 @@ Scene_SwitchAnalyzer.prototype.createUI = function(){
 		'Regions',
 		'EventPages'
 	];
-	var funcs = [
+	var tab_funcs = [
 		this._clickSwitches,
 		this._clickVariables,
 		this._clickMapTriggers,
@@ -345,30 +377,153 @@ Scene_SwitchAnalyzer.prototype.createUI = function(){
 		this._clickRegions,
 		this._clickEventPages
 	];
-	for(var index=0; index < names.length; index++){
+	for(var index=0; index < tab_names.length; index++){
 		this.tabs[index] = document.createElement('input');
 		this.tabs[index].type = 'button';
-		this.tabs[index].value = names[index];
+		this.tabs[index].value = tab_names[index];
 		this.tabs[index].style.cssText = [
 			'margin-right:4px',
 			'cursor: pointer','cursor: hand',// browsers use different names
 			'border:1px solid #666'
 		].join("; ");
-		this.tabs[index].addEventListener("click", funcs[index], false);
+		this.tabs[index].addEventListener("click", tab_funcs[index], false);
 		this.div_navigator.appendChild( this.tabs[index] );
+	}
+
+	// system buttons
+	this.systems = [];
+	var system_names = [
+		'Export result',
+		'Show/Hide dependencies'
+	];
+	for(index = 0; index < system_names.length; index++){
+		this.tabs[index] = document.createElement('input');
+		this.tabs[index].type = 'button';
+		this.tabs[index].value = system_names[index];
+		this.tabs[index].style.cssText = [
+			'margin-right:4px',
+			'cursor: pointer','cursor: hand',// browsers use different names
+			'border:1px solid #666',
+			'border-top:none;',
+			'margin-top:none'
+		].join("; ");
+		//this.tabs[index].addEventListener("click", tab_funcs[index], false);
+		this.div_system.appendChild( this.tabs[index] );
 	}
 
 	this.content.appendChild( this.div_navigator );
 	this.content.appendChild( this.div_table );
+	this.content.appendChild( this.div_system );
 	document.body.appendChild( this.content );
+
+	console.log(this.content);
 };
 
 Scene_SwitchAnalyzer.prototype._clickSwitches = function(){
-	alert("yes");
+	//remove previous table
+	if (this.table != undefined){
+		this.content.removeChild( this.table );
+	}
+
+	// load analyzer
+	if ( !SwitchAnalyzer.loaded ){
+		SwitchAnalyzer.load();
+	}
+
+	// read system.json
+	if ( $dataSystem == undefined ){
+		DataManager.loadDataFile('$dataSystem','System.json');
+	}
+
+	this.table = document.createElement( 'table' );
+
+	var trs = [];
+	// head
+	trs[ 0 ] = document.createElement( 'tr' );
+	trs[ 0 ].innerHTML( [
+		'<td>',
+		'Total count\nof important switches',
+		'</td>',
+		'<td>',
+		SwitchAnalyzer._switches.length,
+		'</td>'
+	].join() );
+	trs[ 1 ] = document.createElement( 'tr' );
+	trs[ 1 ].innerHTML( '<td>Switch ID</td><td>Value</td>' );
+	this.table.appendChild( trs[ 0 ] );
+	this.table.appendChild( trs[ 1 ] );
+
+	// generate lines
+	for( var index = 0; index < SwitchAnalyzer._switches.length; index++ ){
+		trs[ index + 2 ] = document.createElement( 'tr' );
+		trs[ index + 2 ].innerHTML( [
+			'<td>',
+			SwitchAnalyzer._switches[ index ],
+			' : ',
+			$dataSystem.switches[ index ],
+			'</td>',
+			'<td>',
+			$gameSwitches.value( index ),
+			'</td>'
+		].join() );
+		this.table.appendChild( trs[ index + 2 ] );
+	}
+
+	this.div_table.appendChild( this.table );
+	console.log( this.table );
 };
 
 Scene_SwitchAnalyzer.prototype._clickVariables = function(){
-  
+	//remove previous table
+	if (this.table != undefined){
+		this.content.removeChild( this.table );
+	}
+
+	// load analyzer
+	if ( !SwitchAnalyzer.loaded ){
+		SwitchAnalyzer.load();
+	}
+
+	// read system.json
+	if ( $dataSystem == undefined ){
+		DataManager.loadDataFile('$dataSystem','System.json');
+	}
+
+	this.table = document.createElement( 'table' );
+
+	var trs = [];
+	// head
+	trs[ 0 ] = document.createElement( 'tr' );
+	trs[ 0 ].innerHTML( [
+		'<td>',
+		'Total count\nof important variables',
+		'</td>',
+		'<td>',
+		SwitchAnalyzer._variables.length,
+		'</td>'
+	].join() );
+	trs[ 1 ] = document.createElement( 'tr' );
+	trs[ 1 ].innerHTML( '<td>Switch ID</td><td>Value</td>' );
+	this.table.appendChild( trs[ 0 ] );
+	this.table.appendChild( trs[ 1 ] );
+
+	// generate lines
+	for( var index = 0; index < SwitchAnalyzer._variables.length; index++ ){
+		trs[ index + 2 ] = document.createElement( 'tr' );
+		trs[ index + 2 ].innerHTML( [
+			'<td>',
+			SwitchAnalyzer._variables[ index ],
+			' : ',
+			$dataSystem.variables[ index ],
+			'</td>',
+			'<td>',
+			$gameVariables.value( index ),
+			'</td>'
+		].join() );
+		this.table.appendChild( trs[ index + 2 ] );
+	}
+
+	this.div_table.appendChild( this.table );
 };
 
 Scene_SwitchAnalyzer.prototype._clickMapTriggers = function(){
