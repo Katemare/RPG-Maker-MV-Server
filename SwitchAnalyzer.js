@@ -33,10 +33,23 @@
  * @param ---
  * @desc Separator
  *
+ * @param All actors are important?
+ * @desc 0 - only IMPORTANT, 1 - all include listed,
+ * 2 - only LOCAL
+ * @default 0
+ *
+ * @param Important Actors List
+ * @desc Comma separated actor IDs
+ * Example: 1,2,3-6,12-81,102
+ * @default 1
+ *
+ * @param ---
+ * @desc Separator
+ *
  * @param All items are important?
  * @desc 0 - only listed
  * 1 - all include listed
- * @default 1
+ * @default 0
  *
  * @param Important Items List
  * @desc Comma separated item IDs
@@ -49,7 +62,7 @@
  * @param All weapons are important?
  * @desc 0 - only listed
  * 1 - all include listed
- * @default 1
+ * @default 0
  *
  * @param Important Weapons List
  * @desc Comma separated weapon IDs
@@ -62,18 +75,85 @@
  * @param All armors are important?
  * @desc 0 - only listed
  * 1 - all include listed
- * @default 1
+ * @default 0
  *
  * @param Important Armors List
  * @desc Comma separated armor IDs
  * Example: 1,2,3-6,12-81,102
  * @default 1
+ * 
+ * @help
+ * TODO: convert this to condition object or something
+ * SwitchAnalyzer._members[ index ] = [ Actor_ID, Condition ]
+ * => Actor_ID - ID of actor from game database
+ * => Condition = [ Condition_ID, Value_ID ]
+ * 		=> Condition_ID - one from list:
+ * 			* 0 - no condition ( member doesn't appear in a game )
+ *			* 1 - initial party
+ *			* 2 - appear ( add to party ) by a switch
+ *			* 3 - appear by variable
+ *			* 4 - appear by self-switch
+ *			* 5 - appear by item ( if party has specified item )
+ *			* 6 - appear by actor ( if specified actor is in party )
+ *		=> Value_ID - id of something from database relatively to Condition_ID:
+ *			* 0 - no matter
+ *			* 1 - no matter
+ *			* 2 - ID of switch
+ *			* 3 - ID of variable
+ *			* 4 - self-switch char ( 'A', 'B', 'C' or 'D' )
+ *			* 5 - ID of item
+ *			* 6 - ID of actor
  */
+
+/* ConditionList class */
+function ConditionList(){
+	this.initialize.apply(this, arguments);
+}
+
+ConditionList.prototype = Object.create(Object.prototype);
+ConditionList.prototype.constructor = ConditionList;
+
+ConditionList.prototype.initialize = function(){
+	this._data = [];
+};
+
+ConditionList.prototype.conditions = function(){
+	return this._data;
+};
+
+ConditionList.prototype.length = function(){
+	return this._data.length;
+};
+
+ConditionList.prototype.push = function( condition ){
+	if ( condition instanceof Condition ){
+		this._data.push( condition );
+	} else {
+		throw new Error('There must be Condition');
+	}
+}
+
+ConditionList.prototype.clear = function(){
+	this._data = [];
+}
+
+/* Condition class */
+function Condition(){
+	this.initialize.apply(this, arguments);
+}
+
+Condition.prototype = Object.create(Object.prototype);
+Condition.prototype.constructor = Condition;
+
+Condition.prototype.initialize = function( condition_id, value_id ){
+	this.condition_id = condition_id;
+	this.value_id = value_id;
+};
  
 /* SwitchAnalyzer module */
 function SwitchAnalyzer() {
     throw new Error('This is a static class');
-}
+};
 
 // copied from Galv's New Game Plus plugin
 SwitchAnalyzer.sortNumber = function(a,b) {
@@ -102,18 +182,32 @@ SwitchAnalyzer.makeList = function(string) {
 }
 
 /* Plugin Options */
-SwitchAnalyzer.defaultImportanceOfSwitches 	= Number(PluginManager.parameters('SwitchAnalyzer')["Default importance of switches"] || 0);
-SwitchAnalyzer.defaultImportanceOfVars 		= Number(PluginManager.parameters('SwitchAnalyzer')["Default importance of variables"] || 0);
+SwitchAnalyzer.defaultImportanceOfSwitches 	= Number(PluginManager.parameters('SwitchAnalyzer')["Default importance of switches"] 	|| 0);
+SwitchAnalyzer.defaultImportanceOfVars 		= Number(PluginManager.parameters('SwitchAnalyzer')["Default importance of variables"] 	|| 0);
 SwitchAnalyzer.switchList 					= SwitchAnalyzer.makeList(PluginManager.parameters('SwitchAnalyzer')["Important Switches List"]);
 SwitchAnalyzer.varList 						= SwitchAnalyzer.makeList(PluginManager.parameters('SwitchAnalyzer')["Important Variables List"]);
-SwitchAnalyzer.maxId						= Number(PluginManager.parameters('SwitchAnalyzer')['Max ID'] || 9999)
+SwitchAnalyzer.maxId						= Number(PluginManager.parameters('SwitchAnalyzer')['Max ID'] || 9999);
+//---
+SwitchAnalyzer.defaultImportanceOfActors 	= Number(PluginManager.parameters('SwitchAnalyzer')["All actors are important?"] 	|| 0);
+SwitchAnalyzer.defaultImportanceOfItems 	= Number(PluginManager.parameters('SwitchAnalyzer')["All items are important?"] 	|| 0);
+SwitchAnalyzer.defaultImportanceOfWeapons 	= Number(PluginManager.parameters('SwitchAnalyzer')["All weapons are important?"] 	|| 0);
+SwitchAnalyzer.defaultImportanceOfArmors 	= Number(PluginManager.parameters('SwitchAnalyzer')["All armors are important?"] 	|| 0);
+//---
+SwitchAnalyzer.actorsList 					= SwitchAnalyzer.makeList(PluginManager.parameters('SwitchAnalyzer')["Important Actors List"]);
+SwitchAnalyzer.itemsList 					= SwitchAnalyzer.makeList(PluginManager.parameters('SwitchAnalyzer')["Important Items List"]);
+SwitchAnalyzer.weaponsList 					= SwitchAnalyzer.makeList(PluginManager.parameters('SwitchAnalyzer')["Important Weapons List"]);
+SwitchAnalyzer.armorsList 					= SwitchAnalyzer.makeList(PluginManager.parameters('SwitchAnalyzer')["Important Armors List"]);
+
+
+/* interna database */
+SwitchAnalyzer._mapData		= []; // map[ index ] data
 
 /* internal */
 
 SwitchAnalyzer._switches	= []; // important switches
 SwitchAnalyzer._variables	= []; // important variables
 SwitchAnalyzer._maps		= []; // map triggers
-SwitchAnalyzer._members		= {}; // important party members (actor ids and conditions)
+SwitchAnalyzer._members		= []; // important party members (actor ids and conditions)
 SwitchAnalyzer._items		= {}; // important items (ex: {'item_ids':[1,2,3],'weapon_ids':[4,5,6]}) // or {'items':{1:{'onSwitch':[1,2,3]}}}
 SwitchAnalyzer._regions		= {}; // important regions
 SwitchAnalyzer._events		= {}; // ...for future features like event pages or branches
@@ -121,15 +215,13 @@ SwitchAnalyzer._events		= {}; // ...for future features like event pages or bran
 /* public */
 
 SwitchAnalyzer.load = function(){
+	this._resetData();
 	this._loadImportants();
 	this._loadDependencies();
 	this._loaded = true;
 };
 
 SwitchAnalyzer.loaded = function(){
-	if (this._loaded == undefined){
-		return false
-	}
 	return this._loaded;
 }
 
@@ -151,10 +243,22 @@ SwitchAnalyzer.hasMapTriggers = function( mapId ){
 
 /* private */
 
+SwitchAnalyzer._resetData = function(){
+	SwitchAnalyzer._mapData				= [];
+	SwitchAnalyzer._switches.length 	= [];
+	SwitchAnalyzer._variables.length 	= [];
+	SwitchAnalyzer._maps.length 		= [];
+	SwitchAnalyzer._members.length 		= [];
+	SwitchAnalyzer._items.length 		= {};
+	SwitchAnalyzer._regions.length 		= {};
+	SwitchAnalyzer._events.length 		= {};
+	this._loaded = false;
+}
+
 SwitchAnalyzer._loadImportants = function(){
 	// TODO: try to show "Loading" screen, if loading request too much time
 	// read about Promise
-	
+	this._loadMaps();
 	this._loadSwitchesAndVariables();
 	this._loadMapTriggers();
 	this._loadMembers();
@@ -165,10 +269,23 @@ SwitchAnalyzer._loadImportants = function(){
 
 SwitchAnalyzer._loadDependencies = function(){
 	// TODO: add this using graphs and nodes
+	this._membersDependencies();
 };
 
 SwitchAnalyzer._mapTriggers = function( mapId ){
 	return SwitchAnalyzer._maps[ mapId ];
+};
+
+SwitchAnalyzer._loadMaps = function(){
+	for( mapIndex = 1; mapIndex < 999; mapIndex++ ){
+		DataManager.loadMapData( index );
+		if ( DataManager._errorUrl ){
+			break;
+		} else {
+			// ..add to internal variable
+			this._mapData[ mapIndex ] = $dataMap;
+		}
+	}
 };
 
 SwitchAnalyzer._loadSwitchesAndVariables = function(){
@@ -244,41 +361,77 @@ SwitchAnalyzer._loadSwitchesAndVariables = function(){
 
 SwitchAnalyzer._loadMapTriggers = function(){
 	// maps
-	for( mapIndex = 0; mapIndex < 999; mapIndex++ ){
-		DataManager.loadMapData( index );
-		if ( DataManager._errorUrl ){
-			break;
-		} else {
-			// ..load from node
-			var noteArray = $dataMap.note.split( "\n" );
-			var checkRegEx = /<OnTriggers:[\s]*((?:\d+[,]?[\s]*)*)>/i;
-			var note = '';
-			for( index = 0; index < noteArray.length; index++ ){
-				if ( noteArray[ index ].test( checkRegEx ) ){
-					note = noteArray[ index ].exec( checkRegEx );
-					break;
-				}
+	for( mapIndex = 1; mapIndex < this._mapData.length; mapIndex++ ){
+		// ..load from note
+		var noteArray = $dataMap.note.split( "\n" );
+		var checkRegEx = /<OnTriggers:[\s]*((?:\d+[,]?[\s]*)*)>/i;
+		var note = '';
+		for( index = 0; index < noteArray.length; index++ ){
+			if ( noteArray[ index ].test( checkRegEx ) ){
+				note = noteArray[ index ].exec( checkRegEx );
+				break;
 			}
-			// ..convert to array of int
-			var triggers = note.split(",");
-			var sorted = [], result = [];
-			for(index = 0; index < triggers.length; index++ ){
-				triggers[index] = parseInt(triggers[index].trim(),10);
+		}
+		// ..convert to array of int
+		var triggers = note.split(",");
+		var sorted = [], result = [];
+		for(index = 0; index < triggers.length; index++ ){
+			triggers[index] = parseInt(triggers[ index ].trim(),10);
+		}
+		// ..and exclude duplicates
+		sorted = triggers.slice().sort();
+		for (index = 0; index < arr.length - 1; index++) {
+			if (sorted[index + 1] == sorted[ index ]) {
+				result.push( sorted_arr[ index ] );
 			}
-			// ..and exclude duplicates
-			sorted = triggers.slice().sort();
-			for (index = 0; index < arr.length - 1; index++) {
-				if (sorted[index + 1] == sorted[ index ]) {
-					result.push( sorted_arr[ index ] );
-				}
-			}
-			this._maps[ mapIndex ] = result;
-		};
-	};
+		}
+		this._maps[ mapIndex ] = result;
+	}
 };
 
 SwitchAnalyzer._loadMembers = function(){
-	// TODO: add this
+	// local vars
+	var index,note;
+	var importantRegEx = /IMPORTANT/i;
+	var localRegEx = /LOCAL/i;
+
+	// read actors.json
+	if ( $dataActors == undefined ){
+		DataManager.loadDataFile('$dataActors','Actors.json');
+	}
+	// actors
+	// ...by actors list
+	// ONLY IMPORTANTS
+	if ( this.defaultImportanceOfActors === 0 ){
+		for ( index = 0; index < actorsList.length; index++ ){
+			this._members.push( [ index, new ConditionList() ] );
+		}
+	}
+	// ...by actors.json
+	for ( index = 1; index < $dataActors.length; index++ ){
+		switch ( this.defaultImportanceOfActors ){
+			case 0:// ONLY IMPORTANTS
+				note = $dataActors[ index ].note.split( "\n" );
+				for ( var indexNote = 0; indexNote < note.length; indexNote++){
+					if ( this._members.indexOf( index ) < 0 ){
+						if ( note[ indexNote ].test( importantRegEx ) ){
+							this._members.push( [ index, new ConditionList() ] );
+						}
+					}
+				}
+				break;
+			case 2:// ONLY LOCALS
+				note = $dataActors[ index ].note.split( "\n" );
+				for ( var indexNote = 0; indexNote < note.length; indexNote++){
+					if ( note[ indexNote ].test( localRegEx ) ){
+						this._members.push( [ index, new ConditionList() ] );
+					}
+				}
+				break;
+			case 1://EVERYONE
+				this._members.push( [ index, new ConditionList() ] );
+		}
+	}
 };
 
 SwitchAnalyzer._loadItems = function(){
@@ -292,6 +445,73 @@ SwitchAnalyzer._loadRegions = function(){
 SwitchAnalyzer._loadEvents = function(){
 	// TODO: add this
 };
+
+SwitchAnalyzer._membersDependencies = function(){
+	// from initial party
+	if ( $dataSystem == undefined ){
+		DataManager.loadDataFile('$dataSystem','System.json');
+	}
+
+	var initial_party = this._system.partyMembers;
+	var used_actors_id = [];
+
+	for ( index = 1; index < initial_party.length ; index++ ) {
+		used_actors_id.push( initial_party[ index ].id );
+	}
+
+	for ( var index = 0; index < this._members.length; index++ ){
+		if ( used_actors_id.indexOf( this._members[ index ][ 0 ] ) >= 0 ){
+			this._members[ index ][ 1 ].push( new Condition( 1, 0 ) );
+		}
+	}
+
+	// from mapData
+	for( var mapIndex = 1; mapIndex < this._mapData.length; mapIndex++ ){
+		if ( this._mapData.events.length > 1 ){
+			for ( var eventIndex = 1; eventIndex < this._mapData.events.length; eventIndex++ ){
+				for ( var pageIndex = 0; pageIndex < this._mapData.events[ eventIndex ].pages.length; pageIndex++ ){
+					for ( var listIndex = 0; listIndex < this._mapData.events[ eventIndex ].pages[ pageIndex ].list.length; listIndex++ ){
+						var page = this._mapData.events[ eventIndex ].pages[ pageIndex ];
+						var item = this._mapData.events[ eventIndex ].pages[ pageIndex ].list[ listIndex ];
+						// add actor by page conditions
+						if ( item.code == 129 ){// change party members
+							if ( item.parameters[ 1 ] == 0 ){// add actor to party
+								if ( this._members.indexOf( item.parameters[ 0 ] ) >= 0 ){// actor is in list
+									var memberConditionList = this._members[ this._members.indexOf( item.parameters[ 0 ] ) ][ 1 ];
+									// add by page switch
+									if ( page.conditions.switch1Valid ){
+										memberConditionList.push( new Condition( 2, item.conditions.switch1Id ) );
+									}
+									if ( page.conditions.switch2Valid ){
+										memberConditionList.push( new Condition( 2, item.conditions.switch2Id ) );
+									}
+									// add by page variable
+									if ( page.conditions.variableValid ){
+										memberConditionList.push( new Condition( 3, item.conditions.variableId ) );
+									}
+									// add by page self-switch
+									if ( page.conditions.selfSwitchValid ){
+										memberConditionList.push( new Condition( 4, item.conditions.selfSwitchCh ) );
+									}
+									// add by page item
+									if ( page.conditions.itemValid ){
+										memberConditionList.push( new Condition( 5, item.conditions.itemId ) );
+									}
+									// add by page actor
+									if ( page.conditions.actorValid ){
+										memberConditionList.push( new Condition( 6, item.conditions.actorId ) );
+									}
+								}
+							}
+						}
+						// add actor by branch conditions
+						// TODO: add this
+					}
+				}
+			}
+		}
+	}
+}
 
 /* SwitchAnalyzer User Interface */
 function Scene_SwitchAnalyzer() {
