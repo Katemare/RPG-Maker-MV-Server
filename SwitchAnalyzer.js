@@ -482,6 +482,9 @@ SwitchAnalyzer._membersDependencies = function(){
 		}
 	}
 
+	var branch = "page";
+	var branches = [];
+
 	// from mapData
 	for( var mapIndex = 1; mapIndex < this._mapData.length; mapIndex++ ){
 		if ( this._mapData.events.length > 1 ){
@@ -490,6 +493,24 @@ SwitchAnalyzer._membersDependencies = function(){
 					for ( var listIndex = 0; listIndex < this._mapData.events[ eventIndex ].pages[ pageIndex ].list.length; listIndex++ ){
 						var page = this._mapData.events[ eventIndex ].pages[ pageIndex ];
 						var item = this._mapData.events[ eventIndex ].pages[ pageIndex ].list[ listIndex ];
+						
+						// add actor by branch conditions
+						if ( item.code == 111 ) { //...branch "if"
+							branches.push(1);
+							branch = "branch";
+						}
+						if ( item.code == 411 ) { //...branch "else"
+							branch = "branch";
+						}
+						if ( item.code == 412 ) { //...branch "endif"
+							branches.pop();
+							if ( branches.length > 0 ){
+								branch = "branch";
+							} else {
+								branch = "page";
+							}
+						}
+
 						// add actor by page conditions
 						if ( item.code == 129 ){// change party members
 							if ( item.parameters[ 1 ] == 0 ){// add actor to party
@@ -497,32 +518,30 @@ SwitchAnalyzer._membersDependencies = function(){
 									var memberConditionList = this._members[ this._members.indexOf( item.parameters[ 0 ] ) ][ 1 ];
 									// add by page switch
 									if ( page.conditions.switch1Valid ){
-										memberConditionList.push( new Condition( 2, item.conditions.switch1Id, new ConditionPlace( mapIndex, eventIndex, pageIndex, "page" ) ) );
+										memberConditionList.push( new Condition( 2, item.conditions.switch1Id, new ConditionPlace( mapIndex, eventIndex, pageIndex, branch ) ) );
 									}
 									if ( page.conditions.switch2Valid ){
-										memberConditionList.push( new Condition( 2, item.conditions.switch2Id, new ConditionPlace( mapIndex, eventIndex, pageIndex, "page" ) ) );
+										memberConditionList.push( new Condition( 2, item.conditions.switch2Id, new ConditionPlace( mapIndex, eventIndex, pageIndex, branch ) ) );
 									}
 									// add by page variable
 									if ( page.conditions.variableValid ){
-										memberConditionList.push( new Condition( 3, item.conditions.variableId, new ConditionPlace( mapIndex, eventIndex, pageIndex, "page" ) ) );
+										memberConditionList.push( new Condition( 3, item.conditions.variableId, new ConditionPlace( mapIndex, eventIndex, pageIndex, branch ) ) );
 									}
 									// add by page self-switch
 									if ( page.conditions.selfSwitchValid ){
-										memberConditionList.push( new Condition( 4, item.conditions.selfSwitchCh, new ConditionPlace( mapIndex, eventIndex, pageIndex, "page" ) ) );
+										memberConditionList.push( new Condition( 4, item.conditions.selfSwitchCh, new ConditionPlace( mapIndex, eventIndex, pageIndex, branch ) ) );
 									}
 									// add by page item
 									if ( page.conditions.itemValid ){
-										memberConditionList.push( new Condition( 5, item.conditions.itemId, new ConditionPlace( mapIndex, eventIndex, pageIndex, "page" ) ) );
+										memberConditionList.push( new Condition( 5, item.conditions.itemId, new ConditionPlace( mapIndex, eventIndex, pageIndex, branch ) ) );
 									}
 									// add by page actor
 									if ( page.conditions.actorValid ){
-										memberConditionList.push( new Condition( 6, item.conditions.actorId, new ConditionPlace( mapIndex, eventIndex, pageIndex, "page" ) ) );
+										memberConditionList.push( new Condition( 6, item.conditions.actorId, new ConditionPlace( mapIndex, eventIndex, pageIndex, branch ) ) );
 									}
 								}
 							}
 						}
-						// add actor by branch conditions
-						// TODO: add this
 					}
 				}
 			}
