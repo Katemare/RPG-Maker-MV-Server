@@ -81,7 +81,15 @@
  * @desc Comma separated armor IDs
  * Example: 1,2,3-6,12-81,102
  * @default 1
- * 
+ *
+ * @param ---
+ * @desc Separator
+ *
+ * @param Important Regions List
+ * @desc Comma separated region IDs
+ * Example: 1,2,3-6,12-81,102
+ * @default 200-255
+ *
  * @help
  * TODO: convert this to condition object or something
  * SwitchAnalyzer._members[ index ] = [ Actor_ID, Condition ]
@@ -160,6 +168,7 @@ ConditionPlace.prototype = Object.create(Object.prototype);
 ConditionPlace.prototype.constructor = ConditionPlace;
 
 ConditionPlace.prototype.initialize = function( map_id, event_id, page_id, page_or_branch ){
+	// TODO: need contain list id of command?
 	this.map_id				= map_id;
 	this.event_id			= event_id;
 	this.page_id			= page_id;
@@ -213,6 +222,8 @@ SwitchAnalyzer.actorsList 					= SwitchAnalyzer.makeList(PluginManager.parameter
 SwitchAnalyzer.itemsList 					= SwitchAnalyzer.makeList(PluginManager.parameters('SwitchAnalyzer')["Important Items List"]);
 SwitchAnalyzer.weaponsList 					= SwitchAnalyzer.makeList(PluginManager.parameters('SwitchAnalyzer')["Important Weapons List"]);
 SwitchAnalyzer.armorsList 					= SwitchAnalyzer.makeList(PluginManager.parameters('SwitchAnalyzer')["Important Armors List"]);
+//---
+SwitchAnalyzer.regionsList 					= SwitchAnalyzer.makeList(PluginManager.parameters('SwitchAnalyzer')["Important Regions List"]);
 
 
 /* interna database */
@@ -227,7 +238,7 @@ SwitchAnalyzer._members		= []; // important party members (actor ids and conditi
 SwitchAnalyzer._items		= {}; // important items (ex: {'item_ids':[1,2,3],'weapon_ids':[4,5,6]}) // or {'items':{1:{'onSwitch':[1,2,3]}}}
 SwitchAnalyzer._regions		= {}; // important regions
 SwitchAnalyzer._events		= {}; // ...for future features like event pages or branches
-/// TODO: ADD GOLD ANALYZER!!!
+SwitchAnalyzer._golds		= []; // all changes of golds are important!
 
 /* public */
 
@@ -261,14 +272,15 @@ SwitchAnalyzer.hasMapTriggers = function( mapId ){
 /* private */
 
 SwitchAnalyzer._resetData = function(){
-	SwitchAnalyzer._mapData				= [];
-	SwitchAnalyzer._switches.length 	= [];
-	SwitchAnalyzer._variables.length 	= [];
-	SwitchAnalyzer._maps.length 		= [];
-	SwitchAnalyzer._members.length 		= [];
-	SwitchAnalyzer._items.length 		= {};
-	SwitchAnalyzer._regions.length 		= {};
-	SwitchAnalyzer._events.length 		= {};
+	SwitchAnalyzer._mapData		= [];
+	SwitchAnalyzer._switches 	= [];
+	SwitchAnalyzer._variables 	= [];
+	SwitchAnalyzer._maps 		= [];
+	SwitchAnalyzer._members.	= [];
+	SwitchAnalyzer._items 		= {};
+	SwitchAnalyzer._regions 	= {};
+	SwitchAnalyzer._events 		= {};
+	SwitchAnalyzer._golds		= [];
 	this._loaded = false;
 }
 
@@ -282,6 +294,7 @@ SwitchAnalyzer._loadImportants = function(){
 	this._loadItems();
 	this._loadRegions();
 	this._loadEvents();
+	this._loadGolds();
 };
 
 SwitchAnalyzer._loadDependencies = function(){
@@ -608,6 +621,10 @@ SwitchAnalyzer._loadRegions = function(){
 SwitchAnalyzer._loadEvents = function(){
 	// TODO: add this
 };
+
+SwitchAnalyzer._loadGolds = function(){
+	// TODO: add this
+}
 
 SwitchAnalyzer._membersDependencies = function(){
 	// from initial party
