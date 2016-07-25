@@ -452,7 +452,153 @@ SwitchAnalyzer._loadMembers = function(){
 };
 
 SwitchAnalyzer._loadItems = function(){
-	// TODO: add this
+	this._loadItemsOnly();
+	this._loadWeaponsOnly();
+	this._loadArmorsOnly();
+}
+
+SwitchAnalyzer._loadItemsOnly = function(){}
+	// local vars
+	var index,note;
+	var importantRegEx = /IMPORTANT/i;
+	var localRegEx = /LOCAL/i;
+
+	// internal
+	this._items['items'] = [];
+
+	// read items.json
+	if ( $dataItems == undefined ){
+		DataManager.loadDataFile('$dataItems','Items.json');
+	}
+	// items
+	// ...by items list
+	// ONLY IMPORTANTS
+	if ( this.defaultImportanceOfItems === 0 ){
+		for ( index = 0; index < itemsList.length; index++ ){
+			this._items['items'].push( [ index, new ConditionList() ] );
+		}
+	}
+	// ...by items.json
+	for ( index = 1; index < $dataItems.length; index++ ){
+		switch ( this.defaultImportanceOfItems ){
+			case 0:// ONLY IMPORTANTS
+				note = $dataItems[ index ].note.split( "\n" );
+				for ( var indexNote = 0; indexNote < note.length; indexNote++){
+					if ( this._items.indexOf( index ) < 0 ){
+						if ( note[ indexNote ].test( importantRegEx ) ){
+							this._items['items'].push( [ index, new ConditionList() ] );
+						}
+					}
+				}
+				break;
+			case 2:// ONLY LOCALS
+				note = $dataItems[ index ].note.split( "\n" );
+				for ( var indexNote = 0; indexNote < note.length; indexNote++){
+					if ( note[ indexNote ].test( localRegEx ) ){
+						this._items['items'].push( [ index, new ConditionList() ] );
+					}
+				}
+				break;
+			case 1://EVERYONE
+				this._items['items'].push( [ index, new ConditionList() ] );
+		}
+	}
+};
+
+SwitchAnalyzer._loadWeaponsOnly = function(){}
+	// local vars
+	var index,note;
+	var importantRegEx = /IMPORTANT/i;
+	var localRegEx = /LOCAL/i;
+
+	// internal
+	this._items['weapons'] = [];
+
+	// read weapons.json
+	if ( $dataWeapons == undefined ){
+		DataManager.loadDataFile('$dataWeapons','Weapons.json');
+	}
+	// weapons
+	// ...by weapons list
+	// ONLY IMPORTANTS
+	if ( this.defaultImportanceOfWeapons === 0 ){
+		for ( index = 0; index < weaponsList.length; index++ ){
+			this._items['weapons'].push( [ index, new ConditionList() ] );
+		}
+	}
+	// ...by weapons.json
+	for ( index = 1; index < $dataWeapons.length; index++ ){
+		switch ( this.defaultImportanceOfItems ){
+			case 0:// ONLY IMPORTANTS
+				note = $dataWeapons[ index ].note.split( "\n" );
+				for ( var indexNote = 0; indexNote < note.length; indexNote++){
+					if ( this._items.indexOf( index ) < 0 ){
+						if ( note[ indexNote ].test( importantRegEx ) ){
+							this._items['weapons'].push( [ index, new ConditionList() ] );
+						}
+					}
+				}
+				break;
+			case 2:// ONLY LOCALS
+				note = $dataWeapons[ index ].note.split( "\n" );
+				for ( var indexNote = 0; indexNote < note.length; indexNote++){
+					if ( note[ indexNote ].test( localRegEx ) ){
+						this._items['weapons'].push( [ index, new ConditionList() ] );
+					}
+				}
+				break;
+			case 1://EVERYONE
+				this._items['weapons'].push( [ index, new ConditionList() ] );
+		}
+	}
+};
+
+SwitchAnalyzer._loadArmorsOnly = function(){}
+	// local vars
+	var index,note;
+	var importantRegEx = /IMPORTANT/i;
+	var localRegEx = /LOCAL/i;
+
+	// internal
+	this._items['armors'] = [];
+
+	// read armors.json
+	if ( $dataArmors == undefined ){
+		DataManager.loadDataFile('$dataArmors','Armors.json');
+	}
+	// armors
+	// ...by armors list
+	// ONLY IMPORTANTS
+	if ( this.defaultImportanceOfArmors === 0 ){
+		for ( index = 0; index < armorsList.length; index++ ){
+			this._items['armors'].push( [ index, new ConditionList() ] );
+		}
+	}
+	// ...by armors.json
+	for ( index = 1; index < $dataArmors.length; index++ ){
+		switch ( this.defaultImportanceOfItems ){
+			case 0:// ONLY IMPORTANTS
+				note = $dataArmors[ index ].note.split( "\n" );
+				for ( var indexNote = 0; indexNote < note.length; indexNote++){
+					if ( this._items.indexOf( index ) < 0 ){
+						if ( note[ indexNote ].test( importantRegEx ) ){
+							this._items['armors'].push( [ index, new ConditionList() ] );
+						}
+					}
+				}
+				break;
+			case 2:// ONLY LOCALS
+				note = $dataArmors[ index ].note.split( "\n" );
+				for ( var indexNote = 0; indexNote < note.length; indexNote++){
+					if ( note[ indexNote ].test( localRegEx ) ){
+						this._items['armors'].push( [ index, new ConditionList() ] );
+					}
+				}
+				break;
+			case 1://EVERYONE
+				this._items['armors'].push( [ index, new ConditionList() ] );
+		}
+	}
 };
 
 SwitchAnalyzer._loadRegions = function(){
