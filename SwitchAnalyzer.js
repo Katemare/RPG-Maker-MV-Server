@@ -650,12 +650,12 @@ SwitchAnalyzer._membersDependencies = function(){
 
 	// from mapData
 	for( var mapIndex = 1; mapIndex < this._mapData.length; mapIndex++ ){
-		if ( this._mapData.events.length > 1 ){
-			for ( var eventIndex = 1; eventIndex < this._mapData.events.length; eventIndex++ ){
-				for ( var pageIndex = 0; pageIndex < this._mapData.events[ eventIndex ].pages.length; pageIndex++ ){
-					for ( var listIndex = 0; listIndex < this._mapData.events[ eventIndex ].pages[ pageIndex ].list.length; listIndex++ ){
-						var page = this._mapData.events[ eventIndex ].pages[ pageIndex ];
-						var item = this._mapData.events[ eventIndex ].pages[ pageIndex ].list[ listIndex ];
+		if ( this._mapData[ mapIndex ].events.length > 1 ){
+			for ( var eventIndex = 1; eventIndex < this._mapData[ mapIndex ].events.length; eventIndex++ ){
+				for ( var pageIndex = 0; pageIndex < this._mapData[ mapIndex ].events[ eventIndex ].pages.length; pageIndex++ ){
+					for ( var listIndex = 0; listIndex < this._mapData[ mapIndex ].events[ eventIndex ].pages[ pageIndex ].list.length; listIndex++ ){
+						var page = this._mapData[ mapIndex ].events[ eventIndex ].pages[ pageIndex ];
+						var item = this._mapData[ mapIndex ].events[ eventIndex ].pages[ pageIndex ].list[ listIndex ];
 						
 						// add actor by branch conditions
 						if ( item.code == 111 ) { //...branch "if"
