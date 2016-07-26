@@ -51,18 +51,6 @@ Scene_AdminPanel.prototype.create = function() {
     this.createUI();
 };
 
-clickSwitchAnalyzer = function(){
-  this.content.clear();
-};
-
-clickProjectAnalyzer = function(){
-  
-};
-
-clickServerPreprocessor = function(){
-  
-};
-
 Scene_AdminPanel.prototype.createUI = function(){
 	this.setBackgroundOpacity(100);
 	
