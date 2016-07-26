@@ -859,23 +859,23 @@ Scene_SwitchAnalyzer.prototype._clickSwitches = function(){
 	var trs = [];
 	// head
 	trs[ 0 ] = document.createElement( 'tr' );
-	trs[ 0 ].innerHTML( [
+	trs[ 0 ].innerHTML = [
 		'<td>',
 		'Total count\nof important switches',
 		'</td>',
 		'<td>',
 		SwitchAnalyzer._switches.length,
 		'</td>'
-	].join() );
+	].join();
 	trs[ 1 ] = document.createElement( 'tr' );
-	trs[ 1 ].innerHTML( '<td>Switch ID</td><td>Value</td>' );
+	trs[ 1 ].innerHTML = '<td>Switch ID</td><td>Value</td>';
 	this.table.appendChild( trs[ 0 ] );
 	this.table.appendChild( trs[ 1 ] );
 
 	// generate lines
 	for( var index = 0; index < SwitchAnalyzer._switches.length; index++ ){
 		trs[ index + 2 ] = document.createElement( 'tr' );
-		trs[ index + 2 ].innerHTML( [
+		trs[ index + 2 ].innerHTML = [
 			'<td>',
 			SwitchAnalyzer._switches[ index ],
 			' : ',
@@ -884,7 +884,7 @@ Scene_SwitchAnalyzer.prototype._clickSwitches = function(){
 			'<td>',
 			$gameSwitches.value( index ),
 			'</td>'
-		].join() );
+		].join();
 		this.table.appendChild( trs[ index + 2 ] );
 	}
 
@@ -913,23 +913,23 @@ Scene_SwitchAnalyzer.prototype._clickVariables = function(){
 	var trs = [];
 	// head
 	trs[ 0 ] = document.createElement( 'tr' );
-	trs[ 0 ].innerHTML( [
+	trs[ 0 ].innerHTML = [
 		'<td>',
 		'Total count\nof important variables',
 		'</td>',
 		'<td>',
 		SwitchAnalyzer._variables.length,
 		'</td>'
-	].join() );
+	].join();
 	trs[ 1 ] = document.createElement( 'tr' );
-	trs[ 1 ].innerHTML( '<td>Switch ID</td><td>Value</td>' );
+	trs[ 1 ].innerHTML = '<td>Switch ID</td><td>Value</td>';
 	this.table.appendChild( trs[ 0 ] );
 	this.table.appendChild( trs[ 1 ] );
 
 	// generate lines
 	for( var index = 0; index < SwitchAnalyzer._variables.length; index++ ){
 		trs[ index + 2 ] = document.createElement( 'tr' );
-		trs[ index + 2 ].innerHTML( [
+		trs[ index + 2 ].innerHTML = [
 			'<td>',
 			SwitchAnalyzer._variables[ index ],
 			' : ',
@@ -938,7 +938,7 @@ Scene_SwitchAnalyzer.prototype._clickVariables = function(){
 			'<td>',
 			$gameVariables.value( index ),
 			'</td>'
-		].join() );
+		].join();
 		this.table.appendChild( trs[ index + 2 ] );
 	}
 
