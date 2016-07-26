@@ -24,7 +24,7 @@ ProjectAnalyzer._tilesets;
 ProjectAnalyzer._commonevents;
 ProjectAnalyzer._system;
 ProjectAnalyzer._mapinfos;
-ProjectAnalyzer._maps;
+ProjectAnalyzer._mapData;
 ProjectAnalyzer._tiles 		= {};
 ProjectAnalyzer._results 	= {};
 
@@ -81,10 +81,21 @@ ProjectAnalyzer.removeUnusedTiles = function() {
 
 /* private */
 ProjectAnalyzer._loadData = function() {
-	for (var i = 0; i < this._databaseFiles.length; i++) {
+	var index;
+	// database
+	for ( index = 0; index < this._databaseFiles.length; index++ ) {
         var name = this._databaseFiles[i].name;
         var src = this._databaseFiles[i].src;
         this.loadDataFile(name, src);
+    }
+    // maps
+    for ( index = 1; index < 999; index++ ){
+    	DataManager.loadMapData( index );
+		if ( DataManager._errorUrl ){
+			break;
+		} else {
+			this._mapData[ index ] = $dataMap;
+		}
     }
 };
 
@@ -111,7 +122,23 @@ ProjectAnalyzer._checkForActors = function() {
 
 	// if there is still unused actors, then read all maps and commons
 	if ( used_actors_id.length < count_db_actors ) {
-		// TODO: add this
+		for ( var mapIndex = 1; mapIndex < this._mapData.length; mapIndex++ ){
+			for ( var eventIndex = 1; eventIndex < this._mapData[ mapIndex ].events.length; eventIndex++ ){
+				for ( var pageIndex = 0; pageIndex < this._mapData[ mapIndex ].events[ eventIndex ].pages.length; pageIndex++ ){
+					for ( var listIndex = 0; listIndex < this._mapData[ mapIndex ].events[ eventIndex ].pages[ pageIndex ].list.length; listIndex++ ){
+						var page = this._mapData[ mapIndex ].events[ eventIndex ].pages[ pageIndex ];
+						var item = this._mapData[ mapIndex ].events[ eventIndex ].pages[ pageIndex ].list[ listIndex ];
+						if ( item.code == 129 ){// change party members
+							if ( item.parameters[ 1 ] == 0 ){// add actor to party
+								if ( used_actors_id.indexOf( item.parameters[ 0 ] ) < 0 ){
+									used_actors_id.push( item.parameters[ 0 ] );
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 	// if you still have unused then give it's ids...
 	if ( used_actors_id.length < count_db_actors ) {
