@@ -7,6 +7,7 @@
  * @default F12
  */
 
+(function () {
 /* Addition to PluginManager */
 PluginManager.hasScript = function(name) {
 	if (this._scripts.indexOf(name.toLowerCase()>=0)) {
@@ -18,9 +19,10 @@ PluginManager.hasScript = function(name) {
 /* AdminPanel module */
 var AdminPanel=EvilCat.AdminPanel=function AdminPanel(){
 	EvilCat.Plugin.call(this);
-	this.sceneClass=Scene_Export;
+	// this.sceneClass=Scene_Export;
 }
 EvilCat.extend(AdminPanel, EvilCat.Plugin);
+AdminPanel = EvilCat.AdminPanel = new AdminPanel();
 AdminPanel.extendType('Key');
 
 // parameters
@@ -59,6 +61,9 @@ Scene_AdminPanel.prototype.createUI = function(){
 	this.content.style.cssText = [
 			'width:640px',
 			'margin:0 auto',
+			'position:absolute',
+			'z-index:999',
+			'top:0px',
       'background-color:#fff'
 		].join("; ");
 	this.div_title = document.createElement('div');
@@ -186,3 +191,4 @@ SceneManager.onKeyDown = function(event)
 	
 	if (!event.ctrlKey && ! event.altKey && AdminPanel.openKey.recognize(event)) AdminPanel.open();
 }
+})();

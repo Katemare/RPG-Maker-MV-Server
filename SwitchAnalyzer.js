@@ -276,7 +276,7 @@ SwitchAnalyzer._resetData = function(){
 	SwitchAnalyzer._switches 	= [];
 	SwitchAnalyzer._variables 	= [];
 	SwitchAnalyzer._maps 		= [];
-	SwitchAnalyzer._members.	= [];
+	SwitchAnalyzer._members		= [];
 	SwitchAnalyzer._items 		= {};
 	SwitchAnalyzer._regions 	= {};
 	SwitchAnalyzer._events 		= {};
@@ -470,7 +470,7 @@ SwitchAnalyzer._loadItems = function(){
 	this._loadArmorsOnly();
 }
 
-SwitchAnalyzer._loadItemsOnly = function(){}
+SwitchAnalyzer._loadItemsOnly = function(){
 	// local vars
 	var index,note;
 	var importantRegEx = /IMPORTANT/i;
@@ -518,7 +518,7 @@ SwitchAnalyzer._loadItemsOnly = function(){}
 	}
 };
 
-SwitchAnalyzer._loadWeaponsOnly = function(){}
+SwitchAnalyzer._loadWeaponsOnly = function(){
 	// local vars
 	var index,note;
 	var importantRegEx = /IMPORTANT/i;
@@ -566,7 +566,7 @@ SwitchAnalyzer._loadWeaponsOnly = function(){}
 	}
 };
 
-SwitchAnalyzer._loadArmorsOnly = function(){}
+SwitchAnalyzer._loadArmorsOnly = function(){
 	// local vars
 	var index,note;
 	var importantRegEx = /IMPORTANT/i;
