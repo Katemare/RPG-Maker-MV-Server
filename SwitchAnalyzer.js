@@ -679,29 +679,18 @@ SwitchAnalyzer._membersDependencies = function(){
 							if ( item.parameters[ 1 ] == 0 ){// add actor to party
 								if ( this._members.indexOf( item.parameters[ 0 ] ) >= 0 ){// actor is in list
 									var memberConditionList = this._members[ this._members.indexOf( item.parameters[ 0 ] ) ][ 1 ];
-									// add by page switch
-									if ( page.conditions.switch1Valid ){
-										memberConditionList.push( new Condition( 2, item.conditions.switch1Id, new ConditionPlace( mapIndex, eventIndex, pageIndex, branch ) ) );
-									}
-									if ( page.conditions.switch2Valid ){
-										memberConditionList.push( new Condition( 2, item.conditions.switch2Id, new ConditionPlace( mapIndex, eventIndex, pageIndex, branch ) ) );
-									}
-									// add by page variable
-									if ( page.conditions.variableValid ){
-										memberConditionList.push( new Condition( 3, item.conditions.variableId, new ConditionPlace( mapIndex, eventIndex, pageIndex, branch ) ) );
-									}
-									// add by page self-switch
-									if ( page.conditions.selfSwitchValid ){
-										memberConditionList.push( new Condition( 4, item.conditions.selfSwitchCh, new ConditionPlace( mapIndex, eventIndex, pageIndex, branch ) ) );
-									}
-									// add by page item
-									if ( page.conditions.itemValid ){
-										memberConditionList.push( new Condition( 5, item.conditions.itemId, new ConditionPlace( mapIndex, eventIndex, pageIndex, branch ) ) );
-									}
-									// add by page actor
-									if ( page.conditions.actorValid ){
-										memberConditionList.push( new Condition( 6, item.conditions.actorId, new ConditionPlace( mapIndex, eventIndex, pageIndex, branch ) ) );
-									}
+									var pushIntoList = function (page_cond, id, num) {
+										if (page_cond) {
+											memberConditionList.push(new Condition(num, id, new ConditionPlace(mapIndex, eventIndex, pageIndex, branch)))
+										}
+									};
+
+									pushIntoList(page.conditions.switch1Valid, item.conditions.switch1Id, 2);
+									pushIntoList(page.conditions.switch2Valid, item.conditions.switch2Id, 2);
+									pushIntoList(page.conditions.variableValid, item.conditions.variableId, 3);
+									pushIntoList(page.conditions.selfSwitchValid, item.conditions.selfSwitchId, 4);
+									pushIntoList(page.conditions.itemValid, item.conditions.itemId, 5);
+									pushIntoList(page.conditions.actorValid, item.conditions.actorId, 6);
 								}
 							}
 						}
