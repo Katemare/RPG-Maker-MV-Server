@@ -66,7 +66,7 @@ ProjectAnalyzer.results = function(){
 // --for advanced users only
 // Check tileset for unused tiles and autotiles
 ProjectAnalyzer.checkTilesets = function() {
-	
+	// TODO: add this
 };
 // --for advanced users only
 // Remove unused tiles. Start checkTilesets
@@ -105,7 +105,18 @@ ProjectAnalyzer._checkResources = function() {
 
 ProjectAnalyzer._checkDB = function() {
 	this._checkForActors();
-	// TODO: add other check funcs
+	this._checkForClasses();
+	this._checkForSkills();
+	this._checkForItems();
+	this._checkForWeapons();
+	this._checkForArmors();
+	this._checkForEnemies();
+	this._checkForTroops();
+	this._checkForStates();
+	this._checkForAnimations();
+	this._checkForTilesets();
+	this._checkForCommonEvents();
+	this._checkForSystem();
 };
 
 ProjectAnalyzer._checkForActors = function() {
@@ -155,6 +166,84 @@ ProjectAnalyzer._checkForActors = function() {
 	}
 }
 
+ProjectAnalyzer._checkForClasses = function() {
+
+};
+ProjectAnalyzer._checkForSkills = function() {
+
+};
+ProjectAnalyzer._checkForItems = function() {
+
+};
+ProjectAnalyzer._checkForWeapons = function() {
+
+};
+ProjectAnalyzer._checkForArmors = function() {
+
+};
+ProjectAnalyzer._checkForEnemies = function() {
+
+};
+ProjectAnalyzer._checkForTroops = function() {
+
+};
+ProjectAnalyzer._checkForStates = function() {
+
+};
+ProjectAnalyzer._checkForAnimations = function() {
+
+};
+ProjectAnalyzer._checkForTilesets = function() {
+
+};
+ProjectAnalyzer._checkForCommonEvents = function() {
+
+};
+ProjectAnalyzer._checkForSystem = function() {
+	// check if initial party is empty
+	// or starting position is not set
+	if (this._system.partyMembers.length===0){
+		this._results["emptyInitialParty"] = true;	
+	} else {
+		this._results["emptyInitialParty"] = false;
+	}
+	// check if weapon/armor types is unused
+};
+
 ProjectAnalyzer._checkMaps = function() {
-	
+	var used_maps = [];
+
+	// push initial map
+	used_maps.push( this._system.startMapId );
+
+	// if player can transfer to map then it's used
+	// (in future: add transferring to graph and show this to check
+	// really used maps)
+	for ( var mapIndex = 1; mapIndex < this._mapData.length; mapIndex++ ){
+		for ( var eventIndex = 1; eventIndex < this._mapData[ mapIndex ].events.length; eventIndex++ ){
+			for ( var pageIndex = 0; pageIndex < this._mapData[ mapIndex ].events[ eventIndex ].pages.length; pageIndex++ ){
+				for ( var listIndex = 0; listIndex < this._mapData[ mapIndex ].events[ eventIndex ].pages[ pageIndex ].list.length; listIndex++ ){
+					var page = this._mapData[ mapIndex ].events[ eventIndex ].pages[ pageIndex ];
+					var item = this._mapData[ mapIndex ].events[ eventIndex ].pages[ pageIndex ].list[ listIndex ];
+					if ( item.code == 201 ){// transfer player
+						used_maps.push( item.parameters[ 1 ] );
+					}
+				}
+			}
+		}
+	}
+
+	// if you still have unused maps
+	if ( this ) {
+		this._results["allUsedMaps"] = false;
+		for ( var mapIndex = 1; mapIndex < this._mapData.length; mapIndex++ ){
+			if ( used_maps.indexOf( index ) < 0 ) {
+				this._results["unusedMaps"].push( index );
+			}
+		}
+	} else {
+	// or show success
+		this._results["allUsedMaps"] = true;
+		this._results["unusedMaps"] = [];	
+	}
 };
